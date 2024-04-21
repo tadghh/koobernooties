@@ -14,7 +14,10 @@ function minik-build {
         [string]$Tag = "latest",
 
         [Parameter(Position = 1)]
-        [string]$Path = "."
+        [string]$Path = ".",
+		
+		[Parameter(Position = 2)]
+        [switch]$NoCache
     )
 
     # Collect Docker environment variables before Minikube setup
@@ -23,9 +26,13 @@ function minik-build {
 
     # Set up Minikube Docker context 
     & minikube -p minikube docker-env --shell powershell | Invoke-Expression
-
+	
     # Perform Docker build
-    docker build -t $Tag $Path
+	if($NoCache){
+		docker build -t $Tag $Path --no-cache
+	}else{
+		docker build -t $Tag $Path
+	}
 
     # Restore Docker environment variables to their original state
     foreach ($envVar in Get-ChildItem Env:DOCKER_*) {
